@@ -1,0 +1,53 @@
+// 引入软串口库
+#include <SoftwareSerial.h>
+// 定义肌电传感器引脚
+#define EMG_PIN A0
+// 定义软串口引脚
+#define RX_PIN 2
+#define TX_PIN 3
+// 定义软串口对象
+SoftwareSerial esp8266(RX_PIN, TX_PIN);
+// 定义Wi-Fi名称和密码
+#define WIFI_SSID "llll"
+#define WIFI_PASSWORD "88888888"
+// 定义服务器IP和端口号
+void setup() {
+  // 初始化串口和软串口
+  Serial.begin(9600);
+  esp8266.begin(115200);
+esp8266.println("AT");
+  // 连接Wi-Fi
+  Serial.println("Connecting to Wi-Fi...");
+  //向esp8266发送at代码
+  //重启sep8266
+  esp8266.println("AT+RST");
+  delay(1000);
+  //设置为sation模式，客户端模式
+  esp8266.println("AT+CWMODE=1");
+  delay(1000);
+  //连接WiFi
+  esp8266.println("AT+CWJAP=\"llll\",\"88888888\"");
+  delay(10000);
+  // 检查Wi-Fi连接状态
+
+    if (esp8266.find("CONNECTED")) {
+    Serial.println("Wi-Fi connected!");
+  }
+  //设置透传模式
+  esp8266.println("AT+CIPMODE=1");
+  //连接指定ip的端口
+delay(1000);
+esp8266.println("AT+CIPSTART=\"TCP\",\"192.168.156.39\",1006");
+delay(1000);
+//发送数据状态
+esp8266.println("AT+CIPSEND");
+   delay(1000);
+}
+void loop(){
+  //读取肌电信号数据
+  int emg_value = analogRead(EMG_PIN);
+  //将数据发出
+  esp8266.println(String(emg_value));
+  //在串口上打印出
+  Serial.println("EMG value: " + String(emg_value));
+}
